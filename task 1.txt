@@ -1,0 +1,61 @@
+Python 3.11.5 (tags/v3.11.5:cce6ba9, Aug 24 2023, 14:38:34) [MSC v.1936 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license()" for more information.
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import tensorflow as tf
+from sklearn.preprocessing import MinMaxScaler
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
+
+# Load your stock price data into a Pandas DataFrame
+# Replace 'your_data.csv' with the path to your dataset
+data = pd.read_csv('your_data.csv')
+
+# Extract the 'Close' column as the target variable
+data = data[['Close']]
+
+# Normalize the data
+scaler = MinMaxScaler()
+data['Close'] = scaler.fit_transform(data[['Close']])
+
+# Create sequences and labels
+sequence_length = 10  # You can adjust this window size
+... sequences = []
+... labels = []
+... 
+... for i in range(len(data) - sequence_length):
+...     sequences.append(data['Close'].values[i:i+sequence_length])
+...     labels.append(data['Close'].values[i+sequence_length])
+... 
+... X = np.array(sequences)
+... y = np.array(labels)
+... 
+... # Split data into training and testing sets
+... train_size = int(0.8 * len(data))
+... X_train, X_test, y_train, y_test = X[:train_size], X[train_size:], y[:train_size], y[train_size:]
+... 
+... # Build an LSTM model
+... model = Sequential()
+... model.add(LSTM(units=50, activation='relu', input_shape=(sequence_length, 1)))
+... model.add(Dense(1))
+... model.compile(optimizer='adam', loss='mean_squared_error')
+... 
+... # Train the model
+... model.fit(X_train, y_train, epochs=50, batch_size=32)
+... 
+... # Evaluate the model
+... loss = model.evaluate(X_test, y_test)
+... print(f'Test loss: {loss}')
+... 
+... # Make predictions
+... predictions = model.predict(X_test)
+... 
+... # Plot the results
+... plt.figure(figsize=(12, 6))
+... plt.plot(y_test, label='True')
+... plt.plot(predictions, label='Predicted')
+... plt.legend()
+... plt.show()
+>>> [DEBUG ON]
+>>> [DEBUG OFF]
